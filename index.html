@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tajen Belabn - Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <meta name="description" content="منيو طاجن بلبن | منتجات من كوكب السعادة 💙">
+    <meta name="keywords" content="طاجن بلبن, Tajen Belabn, حلويات, قشطوطه, رز بلبن, من خير الطبيعه, كشري الحلو, لبن, ايس كريم, بيستاشيو, ابوكبير, طاجن بلبن ابوكبير, Menu Tajen Belabn, Tajen Belabn menu, طاجن بلبن منيو , طاجن بلبن الشرقيه, طاجن بلبن فاقوس, طاجن بلبن الزقازيق, طاجن بلبن كفر صقر, طاجن بلبن ابوحماد, طاجن بلبن ههيا, بلبن, طاجن, منيو اونلاين, منيو طاجن بلبن, منيو طاجن, منيو بلبن, مصر, طاجن لبن">
+    <meta name="author" content="Tajen Belabn">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content=" منيو طاجن بلبن " />
+    <meta property="og:description" content="منتجات من كوكب السعادة 💙" />
+    <meta property="og:image" content="https://tajenbelabn.com/images/banner/preview.jpg" />
+    <meta property="og:url" content="https://menu.tajenbelabn.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:site_name" content="Tajen Belabn Menu" />"
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content=" منيو طاجن بلبن "/>
+    <meta name="twitter:description" content="منتجات من كوكب السعادة 💙" />
+    <meta name="twitter:image" content="https://menu.tajenbelabn.com/images/banner/preview.jpg" />
+    <link rel="icon" type="image/png" href="images/banner/avater.png">
+</head> 
+<body>
+
+    <div id="loading" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-[100]">
+        <svg class="animate-spin h-12 w-12 text-[#6dd9f3] mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <p class="mt-4 text-lg">جاري تحميل المنيو...</p>
+    </div>
+
+    <header style="background-color: var(--header-bg);" class="fixed top-0 w-full z-50 transition-transform duration-300 pt-4 pb-2">
+        <div class="container mx-auto max-w-md">
+            <div class="w-full flex justify-between items-center px-4">
+                <div>
+                    <img src="images/banner/avater.png" alt="شعار المحل" class="h-14 md:h-17">
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="relative" id="dropdown-container">
+                        <button id="dropdown-btn" class="flex items-center gap-2 bg-[#0074d9] px-5 py-1.5 rounded-lg font-bold text-base whitespace-nowrap">
+                            <span>الأصناف</span>
+                            <svg class="w-5 h-5 transition-transform duration-300" id="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                        </button>
+                        <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20" style="background-color: var(--dropdown-bg); border: 1px solid var(--border-color);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> 
+    
+    <main class="container mx-auto max-w-4xl p-4 pt-32 md:pt-40">
+        <div id="menu-container" class="w-full space-y-12"></div>
+    </main>
+
+    <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 w-full z-40 transition-transform duration-300">
+        <div class="container mx-auto max-w-md p-2">
+            <div class="bg-gray-800 bg-opacity-80 backdrop-blur-sm rounded-lg shadow-lg p-3 flex items-center justify-between gap-3">
+                <select id="branch-select" class="w-3/12 p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00a2fa]">
+                    <option value="abokbeer">ابوكبير</option>
+                    <option value="hehya">ههيا</option>
+                    <option value="zagazig">الزقازيق</option>
+                    <option value="faqous">فاقوس</option>
+                    <option value="kafrsaqr">كفرصقر</option>
+                </select>
+                <a id="call-now-btn" href="#" class="call-btn flex-shrink-0 w-8/12 text-white font-bold py-2 px-4 rounded-lg text-base flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.759a11.03 11.03 0 004.28 4.28l.759-1.518a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                    </svg>
+                    <span>اطلب الآن</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-6 mt-12 border-t border-gray-700 pb-24">
+        <p class="text-gray-400 text-sm">
+            Made with ❤️ by 
+            <a href="https://hmody-site.netlify.app/" target="_blank" rel="noopener noreferrer" class="creator-name">Hmody Code</a>
+        </p>
+        <p class="text-gray-500 text-xs mt-1">
+            &copy; <span id="copyright-year"></span> .Tajen Belabn. All Rights Reserved
+        </p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
