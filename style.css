@@ -6,6 +6,7 @@
     --border-color: #83aae1;
     --primary-color: #000000;
     --creator-color: #1e00ff;
+    --main-link: #0daaf8;
     --gold-color: #FFD700;
     --gold-hover: #e6c200;
     --plus-color: #2ecc71;
@@ -86,6 +87,7 @@ main { flex-grow: 1; }
     margin-top: 2rem;
 }
 .creator-name { color: var(--creator-color); font-weight: 1000; }
+.main-link { color: var(--main-link); font-weight: 1000; }
 
 .gradient-text {
     background: linear-gradient(to top, #0074d9, #ffffff);
