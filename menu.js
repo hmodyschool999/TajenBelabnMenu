@@ -19,7 +19,7 @@ export const menu_database_db = [
   
   export const menu = {
     new: [
-        { id: 1, name: "كونو بيستاشيو", price: 60, description: "كنافه كونو، ايس كريم بيستاشيو، فسدق" },
+        // { id: 0, name: "كونو بيستاشيو", price: 60, description: "كنافه كونو، ايس كريم بيستاشيو، فسدق" },
         { id: 2, name: "البشويشه", price: 70, description: "كنافه، فسدق، لوتس، كيندر، نوتيلا" },
         { id: 3, name: "الفزعه", price: 80, description: "شيكولاته، نوتيلا" }
     ],
@@ -46,7 +46,7 @@ export const menu_database_db = [
         { id: 7, name: "قشطوطة كنافة", price: 60, description: null },
         { id: 8, name: "قشطوطة مكسرات", price: 65, description: null },
         { id: 9, name: "قشطوطة ميكس نوتيلا", price: 65, description: null },
-        { id: 10, name: "قشطوطة فستق", price: 70, description: null },
+        { id: 10, name: "قشطوطة فسدق", price: 70, description: null },
         { id: 11, name: "قشطوطة أرز بلبن مانجا", price: 75, description: null },
         { id: 12, name: "قشطوطة نوتيلا مكسرات", price: 75, description: null },
         { id: 13, name: "قشطوطة أرز بلبن نوتيلا", price: 75, description: null },
