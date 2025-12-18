@@ -1,7 +1,7 @@
 import { menu, menu_database_db } from './menu.js';
 
 const IMAGE_BASE_PATH = './images';
-const categoryTranslations = { new: 'اخر الاختراعات', waffle: 'الوافل', omAli: 'أم علي', dessert: 'الركن الشرقي', milkshake: 'ميلك شيك', juice: 'عصائر', fruit_salad: 'فروت سلات', hot_drink: 'مشروبات ساخنة', extras: 'إضافات', ice_cream: 'آيس كريم', bamboza: 'بمبوظة', gelaktico: 'جلاكتيكوس', tajen: 'طواجن', qashtouta: 'قشطوطة', koshary: 'كشري الحلو', innovations: 'اختراعات', rice: 'أرز باللبن' };
+const categoryTranslations = {waffle: 'الوافل', omAli: 'أم علي', dessert: 'الركن الشرقي', milkshake: 'ميلك شيك', juice: 'عصائر', fruit_salad: 'فروت سلات', hot_drink: 'مشروبات ساخنة', extras: 'إضافات', ice_cream: 'آيس كريم', bamboza: 'بمبوظة', gelaktico: 'جلاكتيكوس', tajen: 'طواجن', qashtouta: 'قشطوطة', koshary: 'كشري الحلو', innovations: 'اختراعات', rice: 'أرز باللبن' };
 const branchPhoneNumbers = { abokbeer: 'tel:01068702062', hehya: 'tel:01011350653', zagazig: 'tel:01080076320', faqous: 'tel:01068020434', kafrsaqr: 'tel:01068701310' };
 
 function formatNameWithLineBreak(name, maxLength) {

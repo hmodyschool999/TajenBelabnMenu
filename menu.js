@@ -1,5 +1,4 @@
 export const menu_database_db = [
-    { name: "new", seq: 0 },
     { name: "bamboza", seq: 1 },
     { name: "koshary", seq: 2 },
     { name: "waffle", seq: 3 },
@@ -18,11 +17,9 @@ export const menu_database_db = [
   ];
   
   export const menu = {
-    new: [
-        // { id: 0, name: "كونو بيستاشيو", price: 60, description: "كنافه كونو، ايس كريم بيستاشيو، فسدق" },
-        { id: 2, name: "البشويشه", price: 70, description: "كنافه، فسدق، لوتس، كيندر، نوتيلا" },
-        { id: 3, name: "الفزعه", price: 80, description: "شيكولاته، نوتيلا" }
-    ],
+    // new: [
+    //     { id: 0, name: "كونو بيستاشيو", price: 60, description: "كنافه كونو، ايس كريم بيستاشيو، فسدق" },
+    // ],
     innovations: [
         { id: 1, name: "قنبلة اسكندراني", price: 65, description: "رز بلبن، عصير، قشطة، موز، تفاح، قطع مانجا، بسبوسة، كنافة، قشطة" },
         { id: 2, name: "دلوعه مانجا", price: 65, description: "رز بلبن، كنافة، قشطة، مانجا، كيندر" },
@@ -147,7 +144,8 @@ export const menu_database_db = [
         { id: 7, name: "طاجن مكسرات", price: 65, description: null },
         { id: 8, name: "طاجن فسدق", price: 70, description: null },
         { id: 9, name: "طاجن هبة دبي M", price: 70, description: null },
-        { id: 10, name: "طاجن هبة دبي L", price: 130, description: null }
+        { id: 10, name: "الفزعه", price: 80, description: "شيكولاته، نوتيلا" },
+        { id: 11, name: "طاجن هبة دبي L", price: 130, description: null }
     ],
     omAli: [
         { id: 1, name: "أم علي بالسمن البلدي", price: 35, description: null },
@@ -176,7 +174,8 @@ export const menu_database_db = [
     ],
     dessert: [
         { id: 1, name: "بسبوسة مكسرات", price: 50, description: null },
-        { id: 2, name: "كنافة فور سيزون", price: 150, description: "نوتيلا، لوتس، اوريو، مانجة، مكسرات" }
+        { id: 2, name: "البشويشه", price: 70, description: "كنافه، فسدق، لوتس، كيندر، نوتيلا" },
+        { id: 3, name: "كنافة فور سيزون", price: 150, description: "نوتيلا، لوتس، اوريو، مانجة، مكسرات" }
     ],
     extras: [
         { id: 1, name: "عسل نحل", price: 5, description: null },
