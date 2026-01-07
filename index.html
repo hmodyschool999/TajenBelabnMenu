@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tajen Belabn - Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    
     <meta name="description" content="منيو طاجن بلبن | منتجات من كوكب السعادة 💙">
     <meta name="keywords" content="طاجن بلبن, Tajen Belabn, حلويات, قشطوطه, رز بلبن, من خير الطبيعه, كشري الحلو, لبن, ايس كريم, بيستاشيو, ابوكبير, طاجن بلبن ابوكبير, Menu Tajen Belabn, Tajen Belabn menu, طاجن بلبن منيو , طاجن بلبن الشرقيه, طاجن بلبن فاقوس, طاجن بلبن الزقازيق, طاجن بلبن كفر صقر, طاجن بلبن ابوحماد, طاجن بلبن ههيا, بلبن, طاجن, منيو اونلاين, منيو طاجن بلبن, منيو طاجن, منيو بلبن, مصر, طاجن لبن">
     <meta name="author" content="Tajen Belabn">
-    <!-- Open Graph -->
+    
     <meta property="og:title" content=" منيو طاجن بلبن " />
     <meta property="og:description" content="منتجات من كوكب السعادة 💙" />
     <meta property="og:image" content="https://menu.tajenbelabn.com/images/banner/preview.jpg" />
@@ -20,14 +22,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:site_name" content="Tajen Belabn Menu" />
-    <!-- Twitter -->
+    
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content=" منيو طاجن بلبن "/>
     <meta name="twitter:description" content="منتجات من كوكب السعادة 💙" />
     <meta name="twitter:image" content="https://menu.tajenbelabn.com/images/banner/preview.jpg" />
     <link rel="icon" type="image/png" href="images/banner/avater.png">
 </head> 
-<body>
+<body> 
 
     <div id="loading" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-[100]">
         <svg class="animate-spin h-12 w-12 text-[#6dd9f3] mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -38,12 +40,20 @@
         <div class="container mx-auto max-w-md">
             <div class="w-full flex justify-between items-center px-4">
                 <div>
-                    <img src="images/banner/avater.png" alt="شعار المحل" class="h-14 md:h-17">
+                    <a href="https://tajenbelabn.com" target="_blank">
+                        <img src="images/banner/avater.png" alt="شعار المحل" class="h-14 md:h-17">
+                    </a>
                 </div>
                 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 md:gap-3">
+                    
+                    <button id="toggle-read-mode-desktop" class="flex items-center gap-2 bg-[#0074d9] text-white px-4 py-1.5 rounded-lg font-bold text-sm md:text-base whitespace-nowrap hover:bg-[#005bb5] transition-colors duration-300 shadow-md">
+                        <i class="fas fa-book-open"></i>
+                        <span>وضع القراءة</span>
+                    </button>
+
                     <div class="relative" id="dropdown-container">
-                        <button id="dropdown-btn" class="flex items-center gap-2 bg-[#0074d9] px-5 py-1.5 rounded-lg font-bold text-base whitespace-nowrap">
+                        <button id="dropdown-btn" class="flex items-center gap-2 bg-[#0074d9] text-white px-4 md:px-5 py-1.5 rounded-lg font-bold text-sm md:text-base whitespace-nowrap hover:bg-[#005bb5] transition-colors duration-300 shadow-md">
                             <span>الأصناف</span>
                             <svg class="w-5 h-5 transition-transform duration-300" id="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
                         </button>
@@ -52,9 +62,13 @@
                 </div>
             </div>
         </div>
-    </header> 
+    </header>
     
     <main class="container mx-auto max-w-4xl p-4 pt-32 md:pt-40">
+        
+        <div id="read-mode-container" class="w-full hidden mb-8">
+            </div>
+
         <div id="menu-container" class="w-full space-y-12"></div>
     </main>
 

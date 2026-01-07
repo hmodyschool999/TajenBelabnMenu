@@ -1,25 +1,26 @@
 export const menu_database_db = [
-    { name: "bamboza", seq: 1 },
-    { name: "koshary", seq: 2 },
-    { name: "waffle", seq: 3 },
-    { name: "innovations", seq: 4 },
-    { name: "rice", seq: 5 },
-    { name: "qashtouta", seq: 6 },
-    { name: "tajen", seq: 7 },
-    { name: "omAli", seq: 8 },
-    { name: "gelaktico", seq: 9 },
+    { name: "new", seq: 0 },
+    { name: "bamboza", seq: 5 },
+    { name: "koshary", seq: 4 },
+    { name: "waffle", seq: 8 },
+    { name: "innovations", seq: 3 },
+    { name: "rice", seq: 2 },
+    { name: "qashtouta", seq: 1 },
+    { name: "tajen", seq: 6 },
+    { name: "omAli", seq: 7 },
+    { name: "gelaktico", seq: 14 },
     { name: "milkshake", seq: 10 },
-    { name: "ice_cream", seq: 11 },
-    { name: "juice", seq: 12 },
+    { name: "ice_cream", seq: 12 },
+    { name: "juice", seq: 11 },
     { name: "fruit_salad", seq: 13 },
-    { name: "dessert", seq: 14 },
+    { name: "dessert", seq: 9 },
     { name: "extras", seq: 15 }
-  ];
+  ]; 
   
   export const menu = {
-    // new: [
-    //     { id: 0, name: "كونو بيستاشيو", price: 60, description: "كنافه كونو، ايس كريم بيستاشيو، فسدق" },
-    // ],
+    new: [
+        { id: 1, name: "عرض ال200", price: 200, description: "قشطوطه فواكه، بمبوظه مانجا، رز بلبن اوريو كيت كات، طاجن نوتيلا، رز بلبن " },
+    ],
     innovations: [
         { id: 1, name: "قنبلة اسكندراني", price: 65, description: "رز بلبن، عصير، قشطة، موز، تفاح، قطع مانجا، بسبوسة، كنافة، قشطة" },
         { id: 2, name: "دلوعه مانجا", price: 65, description: "رز بلبن، كنافة، قشطة، مانجا، كيندر" },

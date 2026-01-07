@@ -20,7 +20,7 @@ body {
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-}
+} 
 main { flex-grow: 1; }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #f7fcfe; }
@@ -137,3 +137,135 @@ body {
     font-size: medium; 
 
 } */
+
+
+/* =========================================
+   تنسيقات خاصة بقسم العروض (New / Offers)
+   ========================================= */
+
+/* تمييز الكارت الخاص بالعروض */
+.item-card.offer-card {
+    border: 2px solid #FFD700; /* إطار ذهبي */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* ظل ذهبي خفيف */
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,215,0,0.05) 100%), var(--banner-normal);
+    background-size: 110% auto;
+    background-position: 45% center;
+    background-repeat: no-repeat;
+    overflow: visible; /* للسماح بظهور شريط العرض خارج الحدود قليلاً لو أردنا */
+}
+
+/* شريط "عرض خاص" */
+.offer-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px; /* في العربية نضعه يسار ليكون مميزاً */
+    background: linear-gradient(45deg, #FFD700, #FDB931);
+    color: #000;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    border-radius: 50px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: pulse-badge 2s infinite;
+}
+
+/* أيقونة داخل الشارة */
+.offer-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* تغيير لون السعر في العروض */
+.offer-card .price-container p {
+    color: #FFD700 !important; /* لون ذهبي للسعر */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* حركة بسيطة للشارة */
+@keyframes pulse-badge {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+/* تعديل العنوان في قسم العروض ليكون مميزاً */
+#new h2 {
+    color: #FFD700; /* عنوان القسم ذهبي */
+    border-bottom-color: #FFD700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.item-card.offer-card.expanded {
+    /* نستخدم نفس التدرج الذهبي ولكن مع صورة الخلفية الموسعة */
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,215,0,0.05) 100%), var(--banner-expanded);
+    
+    /* التأكد من أن خصائص الخلفية الأخرى تظل كما هي */
+    background-size: auto; /* مهم لتناسب صورة expend */
+    border-color: #FFD700; /* الحفاظ على لون الحدود الذهبي */
+}
+
+
+
+/* =========================================
+   تنسيقات وضع القراءة (Read Mode)
+   ========================================= */
+
+/* الحاوية لإخفاء وإظهار العناصر */
+.hidden {
+    display: none !important;
+}
+
+#read-mode-container {
+    /* تمديد الحاوية لتأخذ عرض الشاشة بالكامل وتتجاهل حدود الـ container */
+    width: 100vw; 
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    
+    max-width: 100vw !important;
+    background-color: #333; /* لون خلفية داكن ليتناسب مع وضع القراءة */
+    
+    /* إلغاء الـ padding (1rem) الموجود في عنصر الـ main */
+    margin-top: -1rem;  
+    
+    /* إلغاء أي هوامش سفلية */
+    margin-bottom: 0;
+    padding: 0;
+    
+    /* ضمان أن الحاوية تتمدد لاحتواء الصور */
+    display: flex;
+    flex-direction: column;
+}
+
+/* تنسيق الصور لتكون متلاصقة تماماً */
+#read-mode-container img {
+    display: block;          /* يحول الصورة لعنصر كتلة ويلغي الفراغات السفلية */
+    width: 100%;             /* عرض كامل */
+    height: auto;            /* ارتفاع متناسب */
+    margin: 0;               /* إلغاء الهوامش الخارجية */
+    padding: 0;              /* إلغاء الهوامش الداخلية */
+    border: none;            /* إلغاء الحدود */
+    outline: none;           /* إلغاء الإطار */
+    vertical-align: bottom;  /* الحل السحري لإلغاء الخط الأبيض الرفيع أسفل الصور */
+    object-fit: cover;
+}
+
+/* تحسينات للشاشات الكبيرة للحفاظ على جودة الصور */
+@media (min-width: 1024px) {
+    #read-mode-container {
+        /* في الشاشات الكبيرة، نحدد العرض ليكون مريحاً للعين */
+        width: 100%;
+        max-width: 900px !important; /* عرض أقصى للصور */
+        left: auto;
+        right: auto;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 0;
+    }
+}
