@@ -1,271 +1,299 @@
+/* Tajen Belabn - Final Optimized Style Sheet 
+   Theme: Glassmorphism, Brand Identity & Smart UX
+   Updated: Removed old Read Mode conflicts, Integrated Classic Menu Styles
+*/
+
+/* --- 1. Variables & Design Tokens --- */
 :root {
-    --bg-color: #dfe8edfc;
-    --header-bg: #0daaf8;
-    --dropdown-bg: hsla(192, 62%, 73%, 0.6);
-    --text-color: #ffffff;
-    --border-color: #83aae1;
-    --primary-color: #000000;
-    --creator-color: #1e00ff;
-    --main-link: #0daaf8;
-    --gold-color: #FFD700;
-    --gold-hover: #e6c200;
-    --plus-color: #2ecc71;
-    --minus-color: #e74c3c;
-} 
-html, body { height: 100%; }
+    /* Brand Colors */
+    --primary-blue: #0074d9;
+    --secondary-cyan: #6dd9f3;
+    --header-bg-gradient: linear-gradient(135deg, #0074d9 0%, #00a2fa 100%);
+    
+    /* Background Images Paths */
+    --bg-card-normal: url('banner/normal.png');
+    
+    /* Expanded State Gradient */
+    --card-bg-expanded: linear-gradient(135deg, #0074d9 0%, #00a2fa 100%);
+    
+    /* Text Colors */
+    --text-on-dark: #ffffff;
+    --text-on-light: #1e293b;
+    --text-accent: #38bdf8;
+    
+    /* Special Colors */
+    --gold: #FFD700;
+    --gold-gradient: linear-gradient(45deg, #FFD700, #FDB931);
+}
+
+/* --- 2. Base Reset & Typography --- */
 body {
     font-family: 'Cairo', sans-serif;
-    scroll-behavior: smooth;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-} 
-main { flex-grow: 1; }
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f7fcfe; }
-::-webkit-scrollbar-thumb { background-color: #0074d9; border-radius: 10px; }
-#dropdown-menu { max-height: 70vh; overflow-y: auto; z-index: 60; }
-#dropdown-btn.active #dropdown-arrow { transform: rotate(180deg); }
+    background-color: #f0f4f8; 
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(200,100%,50%,0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(190,100%,60%,0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-on-light);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #0074d9; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #005bb5; }
+
+/* --- 3. Header Styling (Smart Nav) --- */
+.glass-header {
+    background: var(--header-bg-gradient);
+    box-shadow: 0 4px 20px rgba(0, 116, 217, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.glass-header.nav-hidden {
+    transform: translateY(-100%);
+}
+
+.glass-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 0.85rem;
+}
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* --- 4. Menu Item Cards (Core Logic & Background Layering) --- */
 .item-card {
-    background-image: var(--banner-normal);
-    background-size: 110% auto;
-    background-position: 45% center;
-    background-repeat: no-repeat;
+    background-image: var(--bg-card-normal), var(--card-bg-expanded);
+    background-size: 105% auto, cover; 
+    background-position: center center, center center;
+    background-repeat: no-repeat, no-repeat;
+    background-color: var(--primary-blue);
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border: 2px solid transparent;
-    transition: all 0.4s ease-in-out;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    will-change: transform, height;
 }
-.item-card.expanded {
-    background-image: var(--banner-expanded);
-    background-size: auto;
-    border-color: #6dd9f3;
-    transform: scale(1.02);
-    grid-column: 1 / -1; 
-}
+
 @media (min-width: 768px) {
-    .item-card.expanded {
-        grid-column: auto; 
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        border-color: #38bdf8;
     }
 }
+
+/* --- 5. Expanded State --- */
+.item-card.expanded {
+    background-image: var(--card-bg-expanded), var(--card-bg-expanded) !important;
+    background-size: cover, cover;
+    color: white !important;
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255,255,255,0.4);
+    z-index: 10;
+}
+
+.item-card.expanded h3 {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.item-card.expanded .fa-chevron-down {
+    color: white !important;
+}
+
+/* --- 6. Smart Price Tag --- */
+.price-display {
+    position: relative;
+    background: linear-gradient(135deg, #0074d9, #00a2fa);
+    padding: 0.4rem 1.2rem; 
+    border-radius: 9999px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 116, 217, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+    box-sizing: border-box;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+}
+
+.price-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+}
+
+.item-card.expanded .price-display::before,
+.item-card.offer-card .price-display::before {
+    animation: shimmer 2.5s infinite;
+}
+
+.item-card.expanded .price-display {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 7. Special Offers Card --- */
+.offer-card {
+    border: 2px solid #FFD700;
+    position: relative;
+}
+
+.offer-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 215, 0, 0.15),
+        rgba(255, 255, 255, 0.4),
+        rgba(255, 215, 0, 0.15),
+        transparent
+    );
+    transform: skewX(-20deg);
+    animation: card-shimmer 4s infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.offer-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--gold-gradient);
+    color: #1e293b;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 20;
+    animation: pulse-gold 2s infinite;
+}
+
+/* --- 8. Bottom Bar Visibility Controls --- */
+#bottom-bar.bar-hidden {
+    transform: translateY(150%); 
+    opacity: 0;
+}
+
+/* --- 9. Details Section Animation --- */
 .item-details {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height 0.4s ease-out, padding 0.4s ease-out, opacity 0.3s ease-in;
+    transform: translateY(10px);
+    transition: 
+        max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.4s ease-in,
+        transform 0.4s ease-in,
+        padding 0.4s ease;
 }
-.item-card.expanded .item-details { 
-    max-height: 600px; 
-    padding-top: 1rem; 
+
+.item-card.expanded .item-details {
+    max-height: 800px; 
     opacity: 1;
-}
-.add-to-cart-btn {
-    background-color: var(--gold-color);
-    color: #1e293b;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-.add-to-cart-btn:hover {
-    background-color: var(--gold-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-.quantity-btn {
-    width: 2.5rem; height: 2.5rem;
-    font-weight: bold; font-size: 1.5rem;
-    line-height: 1;
-    transition: transform 0.1s ease;
-}
-.quantity-btn:active { transform: scale(0.9); }
-.plus-btn { background-color: var(--plus-color); }
-.minus-btn { background-color: var(--minus-color); }
-.cart-item { background-color: rgba(0, 0, 0, 0.2); }
-.call-btn { background-color: #2ecc71; }
-.call-btn:hover { background-color: #27ae60; }
-.section-separator {
-    border: 0; height: 2px;
-    background-image: linear-gradient(to left, transparent, var(--primary-color), transparent);
-    margin-top: 2rem;
-}
-.creator-name { color: var(--creator-color); font-weight: 1000; }
-.main-link { color: var(--main-link); font-weight: 1000; }
-
-.gradient-text {
-    background: linear-gradient(to top, #0074d9, #ffffff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-.price-btn {
-    padding: 0.5rem 1rem;
-    border: 2px solid #0074d980;
-    color: #6dd9f3;
-    background-color: transparent;
-    border-radius: 0.5rem;
-    font-weight: bold;
-    transition: all 0.2s ease-in-out;
+    transform: translateY(0);
+    padding-top: 1rem;
 }
 
-.price-btn:hover {
-    background-color: #0074d9;
-    color: white;
+/* --- 10. Images & Thumbnails --- */
+.item-img-thumb {
+    transition: transform 0.5s ease;
+}
+.item-card:hover .item-img-thumb {
+    transform: scale(1.05) rotate(2deg);
 }
 
-.price-btn.selected {
-    background-color: #068cd4;
-    color: white;
-    border-color: #00a2fa;
-}
-#bottom-bar {
-    transform: translateY(100%); 
-}
-#bottom-bar.visible {
-    transform: translateY(0); 
-}
-body {
-    padding-bottom: 100px; 
-}
-.item-card.expanded h3 br {
-    display: none;
-}
-/* .item-card h3 {
-    font-size: 0.8rem; 
-    border-block: 700;
-    line-height: 5.7rem; 
-    transition: font-size 0.4s ease-in-out;
-}
-.item-card.expanded h3 {
-    font-size: medium; 
-
-} */
-
-
-/* =========================================
-   تنسيقات خاصة بقسم العروض (New / Offers)
-   ========================================= */
-
-/* تمييز الكارت الخاص بالعروض */
-.item-card.offer-card {
-    border: 2px solid #FFD700; /* إطار ذهبي */
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* ظل ذهبي خفيف */
-    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,215,0,0.05) 100%), var(--banner-normal);
-    background-size: 110% auto;
-    background-position: 45% center;
-    background-repeat: no-repeat;
-    overflow: visible; /* للسماح بظهور شريط العرض خارج الحدود قليلاً لو أردنا */
+/* --- 11. Animations Keyframes --- */
+@keyframes shimmer {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
 }
 
-/* شريط "عرض خاص" */
-.offer-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px; /* في العربية نضعه يسار ليكون مميزاً */
-    background: linear-gradient(45deg, #FFD700, #FDB931);
-    color: #000;
-    padding: 5px 12px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    border-radius: 50px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    animation: pulse-badge 2s infinite;
+@keyframes card-shimmer {
+    0% { left: -150%; }
+    30% { left: 150%; }
+    100% { left: 150%; }
 }
 
-/* أيقونة داخل الشارة */
-.offer-badge svg {
-    width: 14px;
-    height: 14px;
+@keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
 }
 
-/* تغيير لون السعر في العروض */
-.offer-card .price-container p {
-    color: #FFD700 !important; /* لون ذهبي للسعر */
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* حركة بسيطة للشارة */
-@keyframes pulse-badge {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* تعديل العنوان في قسم العروض ليكون مميزاً */
-#new h2 {
-    color: #FFD700; /* عنوان القسم ذهبي */
-    border-bottom-color: #FFD700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+/* --- 12. UI Utilities --- */
+#dropdown-menu { background: rgba(30, 41, 59, 0.95); }
+#dropdown-menu a { color: white; transition: background 0.2s; }
+#dropdown-menu a:hover { background: rgba(255,255,255,0.1); color: #38bdf8; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* --- 13. Classic Read Mode Specific Styles --- */
+.dotted-leader {
+    flex-grow: 1;
+    background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+    background-size: 6px 4px;
+    background-position: center;
+    background-repeat: repeat-x;
+    margin: 0 12px;
+    height: 4px;
+    opacity: 0.7;
 }
 
-.item-card.offer-card.expanded {
-    /* نستخدم نفس التدرج الذهبي ولكن مع صورة الخلفية الموسعة */
-    background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,215,0,0.05) 100%), var(--banner-expanded);
-    
-    /* التأكد من أن خصائص الخلفية الأخرى تظل كما هي */
-    background-size: auto; /* مهم لتناسب صورة expend */
-    border-color: #FFD700; /* الحفاظ على لون الحدود الذهبي */
+.list-item-animate {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-
-
-/* =========================================
-   تنسيقات وضع القراءة (Read Mode)
-   ========================================= */
-
-/* الحاوية لإخفاء وإظهار العناصر */
-.hidden {
-    display: none !important;
+.img-menu {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
 }
 
-#read-mode-container {
-    /* تمديد الحاوية لتأخذ عرض الشاشة بالكامل وتتجاهل حدود الـ container */
-    width: 100vw; 
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
-    
-    max-width: 100vw !important;
-    background-color: #333; /* لون خلفية داكن ليتناسب مع وضع القراءة */
-    
-    /* إلغاء الـ padding (1rem) الموجود في عنصر الـ main */
-    margin-top: -1rem;  
-    
-    /* إلغاء أي هوامش سفلية */
-    margin-bottom: 0;
-    padding: 0;
-    
-    /* ضمان أن الحاوية تتمدد لاحتواء الصور */
-    display: flex;
-    flex-direction: column;
-}
-
-/* تنسيق الصور لتكون متلاصقة تماماً */
-#read-mode-container img {
-    display: block;          /* يحول الصورة لعنصر كتلة ويلغي الفراغات السفلية */
-    width: 100%;             /* عرض كامل */
-    height: auto;            /* ارتفاع متناسب */
-    margin: 0;               /* إلغاء الهوامش الخارجية */
-    padding: 0;              /* إلغاء الهوامش الداخلية */
-    border: none;            /* إلغاء الحدود */
-    outline: none;           /* إلغاء الإطار */
-    vertical-align: bottom;  /* الحل السحري لإلغاء الخط الأبيض الرفيع أسفل الصور */
-    object-fit: cover;
-}
-
-/* تحسينات للشاشات الكبيرة للحفاظ على جودة الصور */
-@media (min-width: 1024px) {
-    #read-mode-container {
-        /* في الشاشات الكبيرة، نحدد العرض ليكون مريحاً للعين */
-        width: 100%;
-        max-width: 900px !important; /* عرض أقصى للصور */
-        left: auto;
-        right: auto;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 0;
-    }
+.group:hover .img-menu {
+    transform: scale(1.05);
 }

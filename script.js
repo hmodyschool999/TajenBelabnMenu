@@ -1,384 +1,759 @@
-import { menu, menu_database_db } from './menu.js';
+/**
+ * Tajen Belabn - Core Script
+ * Refactored for Performance & Modern UX
+ * Final Version: Integrated Auto-Hide Scroll Behavior, Old Price Tag, Dynamic Classic Read Mode,
+ * Auto-expand Adjacent Cards (Desktop), and Persistent View Mode (LocalStorage).
+ */
 
-// --- الثوابت والإعدادات ---
-const IMAGE_BASE_PATH = './images';
-const READ_MODE_PATH = './read'; // مسار صور وضع القراءة
-const categoryTranslations = {
-    waffle: 'الوافل', new: 'العروض و الخصومات', omAli: 'أم علي', dessert: 'الركن الشرقي', 
-    milkshake: 'ميلك شيك', juice: 'عصائر', fruit_salad: 'فروت سلات', 
-    hot_drink: 'مشروبات ساخنة', extras: 'إضافات', ice_cream: 'آيس كريم', 
-    bamboza: 'بمبوظة', gelaktico: 'جلاتيتو روما', tajen: 'طواجن', 
-    qashtouta: 'قشطوطة', koshary: 'كشري الحلو', innovations: 'اختراعات', 
-    rice: 'أرز باللبن' 
-};
-const branchPhoneNumbers = { 
-    abokbeer: 'tel:01068702062', hehya: 'tel:01011350653', 
-    zagazig: 'tel:01080076320', faqous: 'tel:01068020434', 
-    kafrsaqr: 'tel:01068701310' 
-};
+// --- 1. Database & Configuration ---
 
-// --- عناصر DOM ---
-const loadingScreen = document.getElementById('loading');
-const header = document.querySelector("header");
-const dropdownContainer = document.getElementById('dropdown-container'); // الحاوية الكاملة للزر والقائمة
-const dropdownBtn = document.getElementById('dropdown-btn');
-const dropdownMenu = document.getElementById('dropdown-menu');
-const menuContainer = document.getElementById('menu-container');
-const readModeContainer = document.getElementById('read-mode-container');
-const bottomBar = document.getElementById('bottom-bar');
-const branchSelect = document.getElementById('branch-select');
-const callNowBtn = document.getElementById('call-now-btn');
-
-// أزرار وضع القراءة
-const readModeDesktopBtn = document.getElementById('toggle-read-mode-desktop');
-const readModeMobileBtn = document.getElementById('toggle-read-mode-mobile');
-
-// --- متغيرات الحالة ---
-let isReadMode = false;
-let lastScrollY = window.scrollY;
-
-// --- دوال مساعدة ---
-function formatNameWithLineBreak(name, maxLength) {
-    if (name.length <= maxLength) return name;
-    const breakPointIndex = name.indexOf(' ', maxLength);
-    if (breakPointIndex === -1) return name;
-    const part1 = name.substring(0, breakPointIndex);
-    const part2 = name.substring(breakPointIndex + 1);
-    return `${part1} <br>${part2}`; 
-}
-
-function handleImageError() {
-    this.onerror = null;
-    const noPicDiv = document.createElement('div');
-    noPicDiv.className = "w-full h-full rounded-md bg-gray-700 flex items-center justify-center text-gray-400 text-xs";
-    noPicDiv.textContent = 'No Pic';
-    if (this.parentElement) {
-        this.parentElement.replaceChild(noPicDiv, this);
+const CONFIG = {
+    imagesPath: './images',
+    animationClass: 'animate-fade-in-up',
+    branches: {
+        abokbeer: 'tel:01068702062',
+        hehya: 'tel:01011350653',
+        zagazig: 'tel:01080076320',
+        faqous: 'tel:01068020434',
+        kafrsaqr: 'tel:01068701310'
+    },
+    translations: {
+        waffle: 'الوافل', new: 'العروض و الخصومات', omAli: 'أم علي', 
+        dessert: 'الركن الشرقي', milkshake: 'ميلك شيك', juice: 'عصائر', 
+        fruit_salad: 'فروت سلات', hot_drink: 'مشروبات ساخنة', extras: 'إضافات', 
+        ice_cream: 'آيس كريم', bamboza: 'بمبوظة', gelaktico: 'جلاتيتو روما', 
+        tajen: 'طواجن', qashtouta: 'قشطوطة', koshary: 'كشري الحلو', 
+        innovations: 'اختراعات', rice: 'أرز باللبن'
     }
-}
+};
 
-// --- الوظائف الرئيسية للمنيو ---
+// Menu Structure Definition
+const menuCategories = [
+    { name: "new", seq: 0 }, { name: "qashtouta", seq: 1 }, { name: "rice", seq: 2 },
+    { name: "innovations", seq: 3 }, { name: "koshary", seq: 4 }, { name: "bamboza", seq: 5 },
+    { name: "tajen", seq: 6 }, { name: "omAli", seq: 7 }, { name: "waffle", seq: 8 },
+    { name: "dessert", seq: 9 }, { name: "milkshake", seq: 10 }, { name: "juice", seq: 11 },
+    { name: "ice_cream", seq: 12 }, { name: "fruit_salad", seq: 13 }, { name: "gelaktico", seq: 14 },
+    { name: "extras", seq: 15 }
+];
 
-function loadAndProcessMenu() {
-    try {
-        const categoriesInOrder = menu_database_db
-            .sort((a, b) => a.seq - b.seq)
-            .map(cat => cat.name)
-            .filter(name => menu[name] && menu[name].length > 0);
-            
-        const processedMenu = {};
-        categoriesInOrder.forEach(categoryName => {
-            processedMenu[categoryName] = menu[categoryName].map(item => ({ 
-                ...item, 
-                full_image_path: `${IMAGE_BASE_PATH}/${categoryName}/${item.id}.jpg` 
-            }));
-        });
-        
-        renderDropdown(categoriesInOrder);
-        renderMenu(processedMenu, categoriesInOrder);
-        loadingScreen.style.display = "none";
-    } catch (error) {
-        console.error("Error processing local menu data:", error);
-        loadingScreen.innerHTML = `<div class="text-center p-4"><p class="text-red-500 text-xl font-bold">خطأ في عرض المنيو</p></div>`;
+// Menu Items Data
+const menuData = {
+    new: [
+        { id: 1, name: "عرض الـ200", price: 200, old_price: 250, description: "قشطوطه فواكه، بمبوظه مانجا، رز بلبن اوريو كيت كات، طاجن نوتيلا، رز بلبن " },
+        { id: 2, name: "عرض الـ130", price: 130, old_price: 150, description: "الفزعه، البشويشه " },
+        { id: 3, name: "اساور الست", price: 100, old_price: 150, description: null },
+    ],
+    innovations: [
+        { id: 1, name: "قنبلة اسكندراني", price: 65, description: "رز بلبن، عصير، قشطة، موز، تفاح، قطع مانجا، بسبوسة، كنافة، قشطة" },
+        { id: 2, name: "دلوعه مانجا", price: 65, description: "رز بلبن، كنافة، قشطة، مانجا، كيندر" },
+        { id: 3, name: "بقلوظة مانجا", price: 65, description: "رز بلبن، مانجا، ايس كريم، قشطة، بسبوسة، كنافة" },
+        { id: 4, name: "المدرعة", price: 65, description: "رز بلبن، جلاش، ايس كريم، كيندر، نوتيلا" },
+        { id: 5, name: "قدرة قادر", price: 70, description: "رز بلبن، ايس كريم، مكسرات، نوتيلا، موز، لوتس، كراميل" },
+        { id: 6, name: "ماشينكاح", price: 70, description: "رز بلبن، ميلفيه، مانجا، قشطة، مكسرات" },
+        { id: 7, name: "الفولت العالي", price: 70, description: "رز بلبن، كوكتيل فواكه، نوتيلا، كيندر، مكسرات" },
+        { id: 8, name: "القاضية", price: 70, description: "رز بلبن، قشطة، ايس كريم، مكسرات، بسبوسة" },
+        { id: 9, name: "كود 36", price: 70, description: "رز بلبن، مانجا، كنافة، بسبوسة، مكسرات، ايس كريم" },
+        { id: 10, name: "اليكتريك", price: 70, description: "رز بلبن، لوتس، اوريو، نوتيلا، كيندر، كراميل، قشطة، مكسرات" },
+        { id: 11, name: "ترويقة", price: 75, description: "رز بلبن، مانجا، ايس كريم، عسل، مكسرات" }
+    ],
+    qashtouta: [
+        { id: 1, name: "قشطوطة كراميل", price: 50, description: null },
+        { id: 2, name: "قشطوطة فاكهه", price: 55, description: null },
+        { id: 3, name: "قشطوطة مانجا", price: 55, description: null },
+        { id: 4, name: "قشطوطة اوريو", price: 55, description: null },
+        { id: 5, name: "قشطوطة نوتيلا", price: 55, description: null },
+        { id: 6, name: "قشطوطة لوتس", price: 55, description: null },
+        { id: 7, name: "قشطوطة كنافة", price: 60, description: null },
+        { id: 8, name: "قشطوطة مكسرات", price: 65, description: null },
+        { id: 9, name: "قشطوطة ميكس نوتيلا", price: 65, description: null },
+        { id: 10, name: "قشطوطة فسدق", price: 70, description: null },
+        { id: 11, name: "قشطوطة أرز بلبن مانجا", price: 75, description: null },
+        { id: 12, name: "قشطوطة نوتيلا مكسرات", price: 75, description: null },
+        { id: 13, name: "قشطوطة أرز بلبن نوتيلا", price: 75, description: null },
+        { id: 14, name: "قشطوطة الطبطبة", price: 75, description: "كنافة، مانجا، نوتيلا، لوتس، مكسرات" },
+        { id: 15, name: "قشطوطة كف القمر", price: 75, description: "ايس كريم، بسبوسة، كراميل، مكسرات، قشطة، نوتيلا" },
+        { id: 16, name: "قشطوطة كامانجا", price: 75, description: "كنافة، مانجا، مكسرات، نوتيلا" },
+        { id: 17, name: "قشطوطة الهضبة", price: 80, description: "رز بلبن، كيت كات، اوريو، موز، فسدق" },
+        { id: 18, name: "قشطوطة برو ماكس", price: 80, description: "رز بلبن، نوتيلا، فواكه، مكسرات" },
+        { id: 19, name: "قشطوطة هامر", price: 80, description: "رز بلبن، فسدق، لوتس، مانجا" },
+        { id: 20, name: "قشطوطة الغيبويه", price: 80, description: "رز بلبن، كنافة، فسدق، مانجة" },
+        { id: 21, name: "قشطوطة الهشتكة", price: 80, description: "نوتيلا، لوتس، كراميل، اوريو، كيندر، قشطة، مكسرات" },
+        { id: 22, name: "قشطوطة وحش الكون", price: 80, description: "اوريو، لوتس، بيستاشيو، مكسرات" },
+        { id: 23, name: "قشطوطة لفل الوحش", price: 80, description: "رز بلبن، نوتيلا، لوتس، مانجا، مكسرات" }
+    ],
+    waffle: [
+        { id: 1, name: "وافل نوتيلا", price: 65, description: null },
+        { id: 2, name: "وافل كراميل", price: 65, description: null },
+        { id: 3, name: "وافل لوتس", price: 65, description: null },
+        { id: 4, name: "وافل ميكس نوتيلا لوتس", price: 70, description: null },
+        { id: 5, name: "وافل قشطوطه لوتس", price: 70, description: null },
+        { id: 6, name: "وافل نوتيلا فواكة", price: 70, description: null },
+        { id: 7, name: "وافل قشطة فواكة بالعسل", price: 70, description: null },
+        { id: 8, name: "وافل نوتيلا قشطة مكسرات", price: 80, description: null },
+        { id: 9, name: "وافل مثلث برمودا", price: 85, description: "نوتيلا، كيندر، فسدق" },
+        { id: 10, name: "وافل بستاشيو", price: 90, description: null }
+    ],
+    koshary: [
+        { id: 1, name: "كشري مانجة", price: 55, description: null },
+        { id: 2, name: "كشري لوتس", price: 65, description: null },
+        { id: 3, name: "كشري نوتيلا", price: 65, description: null },
+        { id: 4, name: "كشري اوريو", price: 65, description: null },
+        { id: 5, name: "كشري فواكة", price: 65, description: null },
+        { id: 6, name: "كشري ميكس نوتيلا لوتس", price: 70, description: null },
+        { id: 7, name: "كشري فسدق", price: 75, description: null }
+    ],
+    rice: [
+        { id: 1, name: "ارز بلبن سادة", price: 22.5, description: null },
+        { id: 2, name: "ارز بلبن آيس كريم", price: 45, description: null },
+        { id: 3, name: "ارز بلبن نوتيلا", price: 45, description: null },
+        { id: 4, name: "ارز بلبن لوتس", price: 45, description: null },
+        { id: 5, name: "ارز بلبن مانجا قطع", price: 50, description: null },
+        { id: 6, name: "ارز بلبن اوريو وايت صوص", price: 50, description: null },
+        { id: 7, name: "ارز بلبن مكسرات", price: 50, description: null },
+        { id: 8, name: "ارز بلبن ميكس كيت اوريو", price: 55, description: null },
+        { id: 9, name: "ارز بلبن آيس كريم نوتيلا", price: 55, description: null },
+        { id: 10, name: "ارز بلبن قشطة مكسرات", price: 55, description: null },
+        { id: 11, name: "ارز بلبن فسدق", price: 60, description: null },
+        { id: 12, name: "ارز بلبن آيس كريم مكسرات", price: 65, description: null },
+        { id: 13, name: "ارز بلبن نوتيلا مكسرات", price: 65, description: null }
+    ],
+    ice_cream: [
+        { id: 1, name: "فانيليا", price: 20, price2: 40, description: null },
+        { id: 2, name: "فراولة", price: 20, price2: 40, description: null },
+        { id: 3, name: "مانجا", price: 20, price2: 40, description: null },
+        { id: 4, name: "شيكولاتة", price: 20, price2: 40, description: null },
+        { id: 5, name: "توت أزرق", price: 20, price2: 40, description: null },
+        { id: 6, name: "أوريو", price: 20, price2: 40, description: null },
+        { id: 7, name: "لوتس", price: 20, price2: 40, description: null },
+        { id: 8, name: "الرايق", price: 25, price2: 50, description: "ميكس من اختيارك" }
+    ],
+    gelaktico: [
+        { id: 1, name: "چيلاتيتو روما نوتيلا", price: 70, description: null },
+        { id: 2, name: "چيلاتيتو روما لوتس", price: 70, description: null },
+        { id: 3, name: "چيلاتيتو روما اوريو", price: 70, description: null },
+        { id: 4, name: "چيلاتيتو روما كيت كات", price: 75, description: null },
+        { id: 5, name: "چيلاتيتو روما كنافة دبي", price: 80, description: null }
+    ],
+    bamboza: [
+        { id: 1, name: "بمبوظة مانجا", price: 65, description: null },
+        { id: 2, name: "بمبوظة نوتيلا", price: 70, description: null },
+        { id: 3, name: "بمبوظة لوتس", price: 70, description: null },
+        { id: 4, name: "بمبوظة أوريو", price: 70, description: null },
+        { id: 5, name: "بمبوظة مكسرات", price: 80, description: null },
+        { id: 6, name: "بمبوظة فسدق", price: 80, description: null }
+    ],
+    milkshake: [
+        { id: 1, name: "ميلك شيك فانيليا", price: 45, description: null },
+        { id: 2, name: "ميلك شيك مانجا", price: 50, description: null },
+        { id: 3, name: "ميلك شيك فراولة", price: 50, description: null },
+        { id: 4, name: "ميلك شيك توت ازرق", price: 50, description: null },
+        { id: 5, name: "ميلك شيك موز", price: 50, description: null },
+        { id: 6, name: "ميلك شيك كراميل", price: 50, description: null },
+        { id: 7, name: "ميلك شيك شيكولاتة", price: 50, description: null },
+        { id: 8, name: "ميلك شيك نوتيلا", price: 50, description: null },
+        { id: 9, name: "ميلك شيك لوتس", price: 50, description: null },
+        { id: 10, name: "ميلك شيك اوريو", price: 55, description: null },
+        { id: 11, name: "ميلك شيك مكسرات", price: 60, description: null },
+        { id: 12, name: "ميلك شيك ميكس شيكولاتة", price: 65, description: null },
+        { id: 13, name: "ميلك شيك فسدق", price: 85, description: null }
+    ],
+    tajen: [
+        { id: 1, name: "طاجن نوتيلا", price: 45, description: null },
+        { id: 2, name: "طاجن كنافة بالمانجا", price: 45, description: null },
+        { id: 3, name: "طاجن أوريو", price: 50, description: null },
+        { id: 4, name: "طاجن لوتس", price: 50, description: null },
+        { id: 5, name: "طاجن كيت كات", price: 50, description: null },
+        { id: 6, name: "طاجن كيندر", price: 55, description: null },
+        { id: 7, name: "طاجن مكسرات", price: 65, description: null },
+        { id: 8, name: "طاجن فسدق", price: 70, description: null },
+        { id: 9, name: "طاجن هبة دبي M", price: 70, description: null },
+        { id: 10, name: "الفزعه", price: 80, description: "شيكولاته، نوتيلا" },
+        { id: 11, name: "طاجن هبة دبي L", price: 130, description: null }
+    ],
+    omAli: [
+        { id: 1, name: "أم علي بالسمن البلدي", price: 35, description: null },
+        { id: 2, name: "أم علي قشطة بالعسل", price: 45, description: null },
+        { id: 3, name: "أم علي اوريو وايت صوص", price: 45, description: null },
+        { id: 4, name: "أم علي لوتس", price: 45, description: null },
+        { id: 5, name: "أم علي نوتيلا", price: 45, description: null },
+        { id: 6, name: "أم علي مكسرات", price: 50, description: null },
+        { id: 7, name: "أم علي قشطة مكسرات", price: 50, description: null },
+        { id: 8, name: "أم علي آيس كريم مكسرات", price: 55, description: null },
+        { id: 9, name: "طبق السلطان", price: 55, description: "أم علي، نوتيلا، صوص لوتس، بسكويت لوتس، مكسرات، قشطة" }
+    ],
+    juice: [
+        { id: 1, name: "مانجا", price: 40, description: null },
+        { id: 2, name: "فراولة", price: 40, description: null },
+        { id: 3, name: "موز بلبن", price: 45, description: null },
+        { id: 4, name: "فراولة بلبن", price: 45, description: null },
+        { id: 5, name: "مانجا بلبن", price: 45, description: null },
+        { id: 6, name: "بلح بلبن", price: 45, description: null },
+        { id: 7, name: "اكس باور", price: 55, description: "موز، بلح، مكسرات" }
+    ],
+    fruit_salad: [
+        { id: 1, name: "فروت سلات فواكة", price: 45, description: null },
+        { id: 2, name: "فروت سلات آيس كريم", price: 65, description: null },
+        { id: 3, name: "فروت سلات فواكة مكسرات", price: 65, description: null }
+    ],
+    dessert: [
+        { id: 1, name: "بسبوسة مكسرات", price: 50, description: null },
+        { id: 2, name: "البشويشه", price: 70, description: "كنافه، فسدق، لوتس، كيندر، نوتيلا" },
+        { id: 3, name: "اساور الست", price: 100, old_price: 150, description: null },
+        { id: 4, name: "كنافة فور سيزون", price: 150, description: "نوتيلا، لوتس، اوريو، مانجة، مكسرات" }
+    ],
+    extras: [
+        { id: 1, name: "عسل نحل", price: 5, description: null },
+        { id: 2, name: "قشطة", price: 10, description: null },
+        { id: 3, name: "بسكويت مجروش", price: 10, description: null },
+        { id: 4, name: "حلويات", price: 10, description: null },
+        { id: 5, name: "فواكة", price: 15, description: null },
+        { id: 6, name: "صوص نوتيلا", price: 15, description: null },
+        { id: 7, name: "صوص كيندر", price: 15, description: null },
+        { id: 8, name: "آيس كريم", price: 15, description: null },
+        { id: 9, name: "مكسرات", price: 25, description: null },
+        { id: 10, name: "فسدق", price: 25, description: null }
+    ]
+};
+
+// --- 2. State Management ---
+const state = {
+    isReadMode: false,
+    activeCategory: null,
+    isMenuLoaded: false
+};
+
+// --- 3. DOM Elements ---
+const elements = {
+    loading: document.getElementById('loading'),
+    menuContainer: document.getElementById('menu-container'),
+    readModeContainer: document.getElementById('read-mode-container'), 
+    dropdownMenu: document.getElementById('dropdown-menu'),
+    dropdownBtn: document.getElementById('dropdown-btn'),
+    dropdownArrow: document.getElementById('dropdown-arrow'),
+    readModeBtn: document.getElementById('toggle-read-mode'),
+    branchSelect: document.getElementById('branch-select'),
+    callBtn: document.getElementById('call-now-btn'),
+    copyrightYear: document.getElementById('copyright-year'),
+    header: document.querySelector('header'),
+    bottomBar: document.getElementById('bottom-bar')
+};
+
+// --- 4. Initialization ---
+
+document.addEventListener('DOMContentLoaded', init);
+
+function init() {
+    // 1. Set Copyright
+    if (elements.copyrightYear) elements.copyrightYear.textContent = new Date().getFullYear();
+
+    // 2. Render Menu
+    renderMenu();
+
+    // 3. Setup Listeners
+    setupEventListeners();
+
+    // 4. Update Call Button
+    updateCallButton();
+
+    // 5. Check Persistent View Mode Preference
+    const savedViewMode = localStorage.getItem('tajen_view_mode');
+    if (savedViewMode === 'read') {
+        toggleReadMode(); // Activate read mode immediately if it was the last saved choice
     }
+
+    // 6. Hide Loading Screen
+    setTimeout(() => {
+        elements.loading.style.opacity = '0';
+        setTimeout(() => {
+            elements.loading.style.display = 'none';
+        }, 500);
+    }, 800);
 }
 
-function renderDropdown(categories) {
-    dropdownMenu.innerHTML = "";
-    categories.forEach(category => {
-        const link = document.createElement("a");
-        link.href = `#${category}`;
-        link.textContent = categoryTranslations[category] || category;
-        link.className = "block px-4 py-2 text-white hover:bg-[#0074d9] rounded-md mx-1";
-        link.onclick = (e) => {
-            e.preventDefault();
-            const section = document.getElementById(category);
-            if (section) {
-                // حساب المسافة لتعويض الهيدر الثابت
-                const headerOffset = 140; 
-                const elementPosition = section.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-            }
-            dropdownMenu.classList.add("hidden");
-        };
-        dropdownMenu.appendChild(link);
-    });
-}
+// --- 5. Rendering Logic (Main Menu) ---
 
-function renderMenu(menuData, categoriesInOrder) {
-    menuContainer.innerHTML = "";
-    categoriesInOrder.forEach((categoryName, index) => {
-        const section = document.createElement("section");
-        section.id = categoryName;
-        section.className = "menu-section";
+function renderMenu() {
+    // Sort categories by sequence
+    const sortedCategories = menuCategories
+        .sort((a, b) => a.seq - b.seq)
+        .filter(cat => menuData[cat.name] && menuData[cat.name].length > 0);
+
+    // Create DocumentFragment for performance
+    const fragment = document.createDocumentFragment();
+
+    sortedCategories.forEach((category) => {
+        // Create Section
+        const section = document.createElement('section');
+        section.id = category.name;
+        section.className = 'scroll-section opacity-0 translate-y-8 transition-all duration-700 ease-out mb-12';
+
+        // Header
+        const header = createSectionHeader(category.name);
+        section.appendChild(header);
+
+        // Grid
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6';
         
-        const title = document.createElement("h2");
-        const titleColorClass = categoryName === 'new' ? "text-[#FFD700]" : "text-[#00a2fa]";
-        const borderColorClass = categoryName === 'new' ? "border-[#FFD700]" : "border-[#0074d9]/50";
-        
-        title.className = `text-3xl font-extrabold ${titleColorClass} mb-6 border-b-2 ${borderColorClass} pb-3`;
-        const text = categoryTranslations[categoryName] || categoryName;
-        const iconSuffix = categoryName === 'new' ? ' 🔥' : ''; 
-        title.textContent = text + iconSuffix;
-        
-        section.appendChild(title);
-        
-        const grid = document.createElement("div");
-        grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6";
-        
-        menuData[categoryName].forEach(item => {
-            grid.appendChild(createItemCard(item, categoryName)); 
+        // Items
+        menuData[category.name].forEach(item => {
+            grid.appendChild(createItemCard(item, category.name));
         });
-        
+
         section.appendChild(grid);
-        menuContainer.appendChild(section);
-        
-        if (index < categoriesInOrder.length - 1) {
-            const separator = document.createElement("hr");
-            separator.className = "section-separator";
-            menuContainer.appendChild(separator);
-        }
+        fragment.appendChild(section);
+
+        // Add to Dropdown
+        addToDropdown(category.name);
     });
+
+    elements.menuContainer.appendChild(fragment);
+    
+    // Trigger Animations
+    setupIntersectionObserver();
 }
 
-function createItemCard(item, category = '') { 
-    const card = document.createElement("div");
-    let cardClasses = "item-card relative rounded-lg shadow-xl overflow-hidden transition-all duration-300";
-    if (category === 'new') cardClasses += " offer-card";
+function createSectionHeader(categoryName) {
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-3 mb-6 pb-2 border-b-2 border-gray-200';
     
-    card.className = cardClasses;
-    card.style.setProperty("--banner-normal", `url('${IMAGE_BASE_PATH}/banner/normal.png')`);
-    card.style.setProperty("--banner-expanded", `url('${IMAGE_BASE_PATH}/banner/expend.png')`);
+    // Add fire icon for 'new'
+    const isNew = categoryName === 'new';
+    const icon = isNew ? '🔥' : '🍽️';
+    const textColor = isNew ? 'text-[#FFD700]' : 'text-[#0074d9]';
+    
+    div.innerHTML = `
+        <span class="text-2xl">${icon}</span>
+        <h2 class="text-2xl md:text-3xl font-bold ${textColor}">${CONFIG.translations[categoryName] || categoryName}</h2>
+    `;
+    
+    if(isNew) div.classList.replace('border-gray-200', 'border-[#FFD700]');
+    
+    return div;
+}
 
-    // شارة العروض
-    if (category === 'new') {
-        const badge = document.createElement("div");
-        badge.className = "offer-badge";
-        badge.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-            </svg>
-            لفتره محدوده
+function createItemCard(item, categoryName) {
+    const card = document.createElement('div');
+    const isOffer = categoryName === 'new';
+    
+    // Base Classes
+    let classes = 'item-card group';
+    if (isOffer) classes += ' offer-card';
+    card.className = classes;
+
+    // Image Path
+    const imagePath = `${CONFIG.imagesPath}/${categoryName}/${item.id}.jpg`;
+
+    // --- Template Construction ---
+    
+    // Offer Badge
+    let badgeHtml = '';
+    if (isOffer) {
+        badgeHtml = `
+            <div class="offer-badge">
+                <i class="fas fa-star text-[10px]"></i> عرض خاص
+            </div>
         `;
-        card.appendChild(badge);
     }
 
-    // الملخص (Summary) - الجزء الظاهر دائماً
-    const summary = document.createElement("div");
-    summary.className = "p-4 cursor-pointer flex items-center space-x-4 space-x-reverse";
-
-    const summaryImgContainer = document.createElement('div');
-    summaryImgContainer.className = 'relative w-20 h-20 flex-shrink-0';
-    const summaryImg = document.createElement('img');
-    summaryImg.src = item.full_image_path;
-    summaryImg.alt = item.name;
-    
-    const imgBorderClass = category === 'new' ? "border-[#FFD700]" : "border-gray-600";
-    summaryImg.className = `w-20 h-20 rounded-md object-cover border-2 ${imgBorderClass}`;
-    summaryImg.loading = 'lazy';
-    summaryImg.onerror = handleImageError;
-    summaryImgContainer.appendChild(summaryImg);
-
-    const summaryText = document.createElement('div');
-    summaryText.className = 'flex-grow flex flex-col justify-center';
-    const formattedName = formatNameWithLineBreak(item.name, 6);
-    const titleClass = category === 'new' ? "text-[#FFD700]" : "text-white";
-    summaryText.innerHTML = `<h3 class="text-xl font-bold ${titleClass}">${formattedName}</h3>`;
-
-    summary.appendChild(summaryImgContainer);
-    summary.appendChild(summaryText);
-
-    // التفاصيل (Details) - الجزء المخفي
-    const details = document.createElement("div");
-    details.className = "item-details px-4 pb-4 space-y-4";
-
-    const detailsImgContainer = document.createElement('div');
-    const detailsImg = document.createElement('img');
-    detailsImg.src = item.full_image_path;
-    detailsImg.alt = item.name;
-    detailsImg.className = `w-full aspect-square object-cover rounded-lg border-2 ${imgBorderClass}`;
-    detailsImg.loading = 'lazy';
-    detailsImg.onerror = handleImageError;
-    detailsImgContainer.appendChild(detailsImg);
-    details.appendChild(detailsImgContainer);
-
-    if (item.description) {
-        details.innerHTML += `<p class="text-white"><strong class="text-[#6dd9f3]">المكونات:</strong> ${item.description}</p>`;
+    // Price Logic
+    let oldPriceHtml = '';
+    if (item.old_price) {
+        oldPriceHtml = `
+            <span class="relative inline-block text-white/70 text-xs md:text-sm font-medium mr-1" title="السعر القديم">
+                ${item.old_price} ج
+                <span style="position: absolute; top: 50%; left: -5%; width: 110%; height: 2px; background-color: #ef4444; transform: rotate(-15deg); border-radius: 2px; box-shadow: 0 0 2px rgba(239, 68, 68, 0.4);"></span>
+            </span>
+        `;
     }
-    
-    const priceContainer = document.createElement('div');
-    priceContainer.className = "price-container mt-2";
-    const priceColor = category === 'new' ? "text-[#FFD700]" : "text-white";
-    const highlightColor = category === 'new' ? "text-[#FFD700]" : "text-[#6dd9f3]";
 
-    if (item.price2 !== undefined && item.price2 !== null) {
-        priceContainer.innerHTML = `
-            <div class="flex justify-start items-center gap-4">
-                 <p class="text-xl font-bold ${priceColor}"><span class="font-medium text-gray-300">ج</span> ${item.price.toFixed(2)} :S</p>
-                 <p class="text-xl font-bold ${priceColor}"><span class="font-medium text-gray-300">ج</span> ${item.price2.toFixed(2)} :M</p>
+    let priceHtml = '';
+    if (item.price2) {
+        priceHtml = `
+            <div class="flex gap-2 items-center mt-1">
+                <div class="price-display text-xs">S: ${item.price} ج</div>
+                <div class="price-display text-xs">L: ${item.price2} ج</div>
             </div>
         `;
     } else {
-        priceContainer.innerHTML = `<p class="text-2xl font-bold ${highlightColor}">${item.price.toFixed(2)} ج</p>`;
+        priceHtml = `
+            <div class="mt-1">
+                <div class="price-display">
+                    <span>${item.price} ج</span>
+                    ${oldPriceHtml}
+                </div>
+            </div>
+        `;
     }
-    
-    details.appendChild(priceContainer);
-    
-    card.appendChild(summary);
-    card.appendChild(details);
 
-    // منطق التوسيع (Expand Logic)
-    summary.onclick = () => {
-        const isMobile = window.innerWidth < 768;
-        if (isMobile) {
-            const isCurrentlyExpanded = card.classList.contains('expanded');
-            document.querySelectorAll(".item-card.expanded").forEach(c => {
-                if (c !== card) c.classList.remove('expanded');
-            });
-            card.classList.toggle('expanded', !isCurrentlyExpanded);
-        } else {
-            // منطق الديسكتوب (يفتح الكارت والمقابل له في الشبكة)
-            const allCardsInGrid = Array.from(card.parentElement.children);
-            const currentIndex = allCardsInGrid.indexOf(card);
-            let pairCard = null;
+    card.innerHTML = `
+        ${badgeHtml}
+        
+        <div class="p-4 flex items-center gap-4 relative z-10">
+            <div class="relative w-20 h-20 flex-shrink-0">
+                <img src="${imagePath}" 
+                     alt="${item.name}" 
+                     class="item-img-thumb w-full h-full object-cover rounded-xl shadow-md border border-gray-100"
+                     loading="lazy"
+                     onerror="this.src='https://placehold.co/100x100?text=Tajen';this.style.opacity=0.5;">
+            </div>
             
-            // تحديد الكارت المقابل في الشبكة 2x2
-            if (currentIndex % 2 === 0) {
-                pairCard = allCardsInGrid[currentIndex + 1];
-            } else {
-                pairCard = allCardsInGrid[currentIndex - 1];
-            }
+            <div class="flex-grow">
+                <h3 class="text-lg font-bold text-gray-800 leading-tight mb-1 transition-colors">${item.name}</h3>
+                ${priceHtml}
+            </div>
             
-            const isCurrentlyExpanded = card.classList.contains('expanded');
-            document.querySelectorAll(".item-card.expanded").forEach(c => {
-                if (c !== card && c !== pairCard) {
-                    c.classList.remove('expanded');
-                }
-            });
+            <div class="text-gray-300 flex-shrink-0">
+                <i class="fas fa-chevron-down transform transition-transform duration-300 group-hover:text-[#0074d9]"></i>
+            </div>
+        </div>
+
+        <div class="item-details px-4 pb-4">
+            <div class="w-full h-48 md:h-64 rounded-xl overflow-hidden mb-3 border border-white/20 shadow-inner">
+                <img src="${imagePath}" 
+                     class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" 
+                     loading="lazy" 
+                     alt="${item.name} details"
+                     onerror="this.src='https://placehold.co/400x300?text=Tajen';">
+            </div>
             
-            card.classList.toggle('expanded', !isCurrentlyExpanded);
-            if (pairCard) {
-                pairCard.classList.toggle('expanded', !isCurrentlyExpanded);
-            }
-        }
-    };
+            ${item.description ? `<p class="text-sm font-medium opacity-90 mb-3 bg-white/10 p-2 rounded-lg backdrop-blur-sm">${item.description}</p>` : ''}
+            
+            <button class="w-full bg-white text-[#0074d9] font-bold py-2 rounded-lg shadow-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                <i class="fas fa-utensils"></i> صحة وعافية
+            </button>
+        </div>
+    `;
+
+    // Click Handler (Accordion Logic)
+    card.addEventListener('click', (e) => toggleCard(card));
 
     return card;
 }
 
-// --- وظائف وضع القراءة (Read Mode) ---
+// --- 6. Interactivity & UX Logic ---
+
+// Helper functions for card state
+function openCardElement(card) {
+    card.classList.add('expanded');
+    const icon = card.querySelector('.fa-chevron-down');
+    if (icon) icon.style.transform = 'rotate(180deg)';
+}
+
+function closeCardElement(card) {
+    card.classList.remove('expanded');
+    const icon = card.querySelector('.fa-chevron-down');
+    if (icon) icon.style.transform = 'rotate(0deg)';
+}
+
+function toggleCard(selectedCard) {
+    const isExpanded = selectedCard.classList.contains('expanded');
+    
+    // Check if we are on a desktop screen (where grid-cols-2 is active)
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    
+    let siblingCard = null;
+
+    if (isDesktop) {
+        // Find the adjacent sibling in the same grid row
+        const parentGrid = selectedCard.parentElement;
+        const siblings = Array.from(parentGrid.children);
+        const index = siblings.indexOf(selectedCard);
+
+        if (index % 2 === 0 && index + 1 < siblings.length) {
+            // It's the left card (even index), so its partner is the next one
+            siblingCard = siblings[index + 1];
+        } else if (index % 2 !== 0 && index - 1 >= 0) {
+            // It's the right card (odd index), so its partner is the previous one
+            siblingCard = siblings[index - 1];
+        }
+    }
+
+    // 1. Close all other cards (Except the selected one and its sibling partner)
+    document.querySelectorAll('.item-card.expanded').forEach(card => {
+        if (card !== selectedCard && card !== siblingCard) {
+            closeCardElement(card);
+        }
+    });
+
+    // 2. Toggle the selected card (and its sibling if it exists)
+    if (isExpanded) {
+        closeCardElement(selectedCard);
+        if (siblingCard) closeCardElement(siblingCard);
+    } else {
+        openCardElement(selectedCard);
+        if (siblingCard) openCardElement(siblingCard);
+    }
+
+    // 3. Scroll into view if opening
+    if (!isExpanded) {
+        setTimeout(() => {
+            selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    }
+}
+
+function addToDropdown(categoryName) {
+    const link = document.createElement('a');
+    link.href = `#${categoryName}`;
+    link.className = 'block px-4 py-3 text-sm font-semibold border-b border-white/5 last:border-0';
+    link.innerHTML = `
+        <span class="inline-block w-2 h-2 rounded-full bg-[#38bdf8] ml-2"></span>
+        ${CONFIG.translations[categoryName]}
+    `;
+    
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        elements.dropdownMenu.classList.add('hidden');
+        const target = document.getElementById(categoryName);
+        if (target) {
+            const headerOffset = 100;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        }
+    });
+    
+    elements.dropdownMenu.appendChild(link);
+}
+
+// --- 7. Read Mode Logic (Dynamic Classic Menu) ---
 
 function toggleReadMode() {
-    isReadMode = !isReadMode;
-    
-    if (isReadMode) {
-        // تفعيل وضع القراءة
-        menuContainer.classList.add('hidden');
-        readModeContainer.classList.remove('hidden');
-        
-        // إخفاء زر "الأصناف"
-        if(dropdownContainer) dropdownContainer.classList.add('hidden');
+    state.isReadMode = !state.isReadMode;
+    const btnIcon = elements.readModeBtn.querySelector('i');
+    const btnText = elements.readModeBtn.querySelector('span');
 
-        // تغيير نص وأيقونة الزر
-        const iconHtml = '<i class="fas fa-th-list"></i>';
-        const buttonText = `<span>وضع الأعمدة</span>`; // تم التعديل
+    if (state.isReadMode) {
+        // Activate Read Mode
+        elements.menuContainer.classList.add('hidden');
+        elements.readModeContainer.classList.remove('hidden');
+        elements.readModeContainer.classList.add('block'); 
         
-        if(readModeDesktopBtn) readModeDesktopBtn.innerHTML = `${iconHtml} ${buttonText}`;
-        if(readModeMobileBtn) readModeMobileBtn.innerHTML = '🧱 وضع الأعمدة'; // في حال وجود زر موبايل منفصل
+        btnIcon.className = 'fas fa-th-large';
+        btnText.textContent = 'وضع القائمة';
 
-        // تحميل الصور
-        if (readModeContainer.innerHTML.trim() === '') {
-            loadReadModeImages();
+        // التحقق مما إذا كانت الحاوية الداخلية فارغة لإنشائها مرة واحدة فقط
+        const classicContainer = document.getElementById('classic-menu-container');
+        if (classicContainer && classicContainer.children.length === 0) {
+            renderClassicMenu();
         }
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
 
     } else {
-        // العودة للوضع العادي
-        menuContainer.classList.remove('hidden');
-        readModeContainer.classList.add('hidden');
+        // Deactivate Read Mode
+        elements.menuContainer.classList.remove('hidden');
+        elements.readModeContainer.classList.add('hidden');
+        elements.readModeContainer.classList.remove('block');
         
-        if(dropdownContainer) dropdownContainer.classList.remove('hidden');
-
-        const iconHtml = '<i class="fas fa-book-open"></i>';
-        const buttonText = `<span>وضع القراءة</span>`; // تم التعديل
-        
-        if(readModeDesktopBtn) readModeDesktopBtn.innerHTML = `${iconHtml} ${buttonText}`;
-        if(readModeMobileBtn) readModeMobileBtn.innerHTML = '📖 وضع القراءة';
+        btnIcon.className = 'fas fa-book-open';
+        btnText.textContent = 'وضع القراءة';
     }
+
+    // Save Preference to LocalStorage
+    localStorage.setItem('tajen_view_mode', state.isReadMode ? 'read' : 'grid');
 }
 
-function loadReadModeImages() {
-    const imagesCount = 5; // عدد الصور في مجلد القراءة
-    let html = '';
-    
-    for (let i = 1; i <= imagesCount; i++) {
-        // تحميل أول صورتين بسرعة (eager) والباقي عند الحاجة (lazy)
-        const loadingType = i <= 2 ? 'eager' : 'lazy';
-        // إضافة كلاسات لتحسين عرض الصور
-        html += `<img src="${READ_MODE_PATH}/${i}.jpg" alt="قائمة صفحة ${i}" loading="${loadingType}" class="w-full h-auto rounded-lg shadow-lg mb-4 border border-gray-700">`;
-    }
-    
-    readModeContainer.innerHTML = html;
+// بناء وضع القراءة الكلاسيكي ديناميكياً من البيانات بالهيكل الجديد
+function renderClassicMenu() {
+    const container = document.getElementById('classic-menu-container');
+    const fragment = document.createDocumentFragment();
+
+    const sortedCategories = menuCategories
+        .sort((a, b) => a.seq - b.seq)
+        .filter(cat => menuData[cat.name] && menuData[cat.name].length > 0);
+
+    sortedCategories.forEach((category) => {
+        const section = document.createElement('div');
+        section.className = 'mb-10'; // تقليل المسافة بين الأقسام قليلاً
+        
+        const isNew = category.name === 'new';
+        const titleColor = isNew ? 'text-brand-gold' : 'text-gray-800';
+        const lineColor = isNew ? 'bg-brand-gold/30' : 'bg-gray-200';
+        const translatedName = CONFIG.translations[category.name] || category.name;
+
+        section.innerHTML = `
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <div class="h-[1px] ${lineColor} flex-1"></div>
+                <h2 class="text-xl md:text-2xl font-extrabold ${titleColor} px-2">
+                    ${translatedName}
+                </h2>
+                <div class="h-[1px] ${lineColor} flex-1"></div>
+            </div>
+            <div class="flex flex-col gap-5"></div>
+        `;
+
+        const listContainer = section.querySelector('.flex-col');
+
+        menuData[category.name].forEach((item, index) => {
+            const imagePath = `${CONFIG.imagesPath}/${category.name}/${item.id}.jpg`;
+            
+            // --- تعديل هندسة السعر ليكون له عرض ثابت ---
+            let priceHtml = '';
+            let oldPriceHtml = item.old_price 
+                ? `<span class="text-[11px] text-red-400 line-through mx-1 font-tajawal">${item.old_price}ج</span>` 
+                : '';
+
+            if (item.price2) {
+                // في حال السعرين: يتم عرضهم بشكل رأسي أو منسق لضمان العرض الثابت
+                priceHtml = `
+                    <div class="flex flex-col text-left font-bold text-gray-800 bg-gray-50/50 px-2 py-0.5 rounded border border-gray-100/50 w-full">
+                        <div class="flex justify-between items-center text-[13px] md:text-sm">
+                            <span class="text-[10px] text-gray-400 font-tajawal ml-1">S:</span>
+                            <span>${item.price}<span class="text-[10px] text-gray-500 mr-0.5">ج</span></span>
+                        </div>
+                        <div class="flex justify-between items-center text-[13px] md:text-sm border-t border-gray-100">
+                            <span class="text-[10px] text-gray-400 font-tajawal ml-1">L:</span>
+                            <span>${item.price2}<span class="text-[10px] text-gray-500 mr-0.5">ج</span></span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // في حال السعر الواحد
+                priceHtml = `
+                    <div class="text-left font-bold text-gray-800 text-base md:text-lg flex justify-end items-center w-full">
+                        ${oldPriceHtml}
+                        ${item.price} <span class="text-xs text-gray-500 mr-1 font-tajawal mt-1">ج.م</span>
+                    </div>
+                `;
+            }
+
+            // --- تعديل هندسة الوصف ليكون أصغر وأقرب للاسم ---
+            let descHtml = item.description 
+                ? `
+                <p class="text-[12px] md:text-[13px] text-gray-500 font-tajawal leading-snug mt-0.5 pr-1">
+                    ${item.description}
+                </p>
+                ` 
+                : '';
+
+            const itemDiv = document.createElement('div');
+            itemDiv.style.animationDelay = `${index * 0.05}s`;
+            itemDiv.className = 'list-item-animate opacity-0 w-full group transition-all duration-300 hover:bg-white p-2 -mx-2 rounded-xl';
+            
+            // --- الهيكل الجديد: (الصورة) ثم (الاسم + الوصف معاً) ثم (النقط) ثم (حاوية السعر الثابتة) ---
+            itemDiv.innerHTML = `
+                <div class="flex items-start w-full gap-3">
+                    
+                    <div class="flex-shrink-0 mt-1">
+                        <img src="${imagePath}" 
+                             alt="${item.name}" 
+                             class="img-menu w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border border-gray-200 bg-gray-50"
+                             onerror="this.src='https://placehold.co/100x100?text=Logo';">
+                    </div>
+                    
+                    <div class="flex-grow flex flex-col justify-center min-w-0">
+                        
+                        <div class="flex items-center w-full">
+                            <h3 class="text-sm md:text-base font-bold text-gray-800 transition-colors group-hover:text-brand-blue whitespace-nowrap">
+                                ${item.name}
+                            </h3>
+                            
+                            <div class="dotted-leader"></div>
+                            
+                            <div class="flex-shrink-0 w-[75px] md:w-[90px] flex justify-end">
+                                ${priceHtml}
+                            </div>
+                        </div>
+                        
+                        ${descHtml}
+
+                    </div>
+                </div>
+            `;
+
+            listContainer.appendChild(itemDiv);
+        });
+
+        fragment.appendChild(section);
+    });
+
+    container.appendChild(fragment);
 }
 
-// --- تحديث الأزرار والاتصال ---
+// --- 8. Event Listeners Setup ---
+
+function setupEventListeners() {
+    // Dropdown
+    if (elements.dropdownBtn) {
+        elements.dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            elements.dropdownMenu.classList.toggle('hidden');
+            elements.dropdownArrow.classList.toggle('rotate-180');
+        });
+    }
+
+    // Close Dropdown on outside click
+    document.addEventListener('click', (e) => {
+        if (!elements.dropdownBtn.contains(e.target) && !elements.dropdownMenu.contains(e.target)) {
+            elements.dropdownMenu.classList.add('hidden');
+            if(elements.dropdownArrow) elements.dropdownArrow.classList.remove('rotate-180');
+        }
+    });
+
+    // Branch Select
+    if (elements.branchSelect) {
+        elements.branchSelect.addEventListener('change', updateCallButton);
+    }
+
+    // Read Mode
+    if (elements.readModeBtn) {
+        elements.readModeBtn.addEventListener('click', toggleReadMode);
+    }
+
+    // --- Scroll Behavior for Auto-Hide Navbar & Bottom Bar ---
+    let lastScrollY = window.scrollY;
+
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        
+        // Define direction and position
+        const isScrollingDown = currentScrollY > lastScrollY;
+        const isAtTop = currentScrollY < 50; 
+
+        // Safety check if elements exist
+        if (!elements.header || !elements.bottomBar) return;
+
+        if (isScrollingDown && !isAtTop) {
+            // Hide elements
+            elements.header.classList.add('nav-hidden');
+            elements.bottomBar.classList.add('bar-hidden');
+            
+            // Close dropdown if open
+            if(elements.dropdownMenu) elements.dropdownMenu.classList.add('hidden');
+        } else {
+            // Show elements
+            elements.header.classList.remove('nav-hidden');
+            elements.bottomBar.classList.remove('bar-hidden');
+        }
+
+        lastScrollY = currentScrollY;
+    }, { passive: true });
+}
+
 function updateCallButton() {
-    callNowBtn.href = branchPhoneNumbers[branchSelect.value] || '#';
+    if (!elements.branchSelect || !elements.callBtn) return;
+    const selectedBranch = elements.branchSelect.value;
+    elements.callBtn.href = CONFIG.branches[selectedBranch];
 }
 
-// --- Event Listeners ---
+// --- 9. Animations (Intersection Observer) ---
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadAndProcessMenu();
-    document.getElementById('copyright-year').textContent = new Date().getFullYear();
-    updateCallButton();
-});
+function setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.remove('opacity-0', 'translate-y-8');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    });
 
-// Dropdown Toggle
-if (dropdownBtn) {
-    dropdownBtn.addEventListener('click', () => dropdownMenu.classList.toggle('hidden'));
+    document.querySelectorAll('.scroll-section').forEach(section => {
+        observer.observe(section);
+    });
 }
-
-// إغلاق القائمة عند النقر خارجها
-document.addEventListener('click', (e) => {
-    if (dropdownBtn && !dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.add('hidden');
-    }
-});
-
-branchSelect.addEventListener('change', updateCallButton);
-
-// أزرار وضع القراءة
-if (readModeDesktopBtn) readModeDesktopBtn.addEventListener('click', toggleReadMode);
-if (readModeMobileBtn) readModeMobileBtn.addEventListener('click', toggleReadMode);
-
-// Scroll Behavior (Header & Bottom Bar)
-window.addEventListener("scroll", () => {
-    const currentScrollY = window.scrollY;
-    const isAtBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 50;
-
-    // إخفاء/إظهار الهيدر
-    if (currentScrollY < lastScrollY || currentScrollY < 100) {
-        header.classList.remove("translate-y-[-100%]");
-    } else {
-        header.classList.add("translate-y-[-100%]");
-    }
-
-    // إخفاء/إظهار الشريط السفلي
-    // يظهر فقط عند التمرير لأسفل أو الوصول للنهاية، ويختفي عند الصعود أو في أعلى الصفحة
-    if (currentScrollY > lastScrollY && !isAtBottom) {
-        bottomBar.classList.remove('visible'); // قد تحتاج لإضافة كلاس في CSS للتحكم بالظهور إذا لم يكن موجوداً
-        bottomBar.style.transform = "translateY(100%)"; // استخدام التحويل مباشرة إذا لم يكن هناك كلاس
-    } else {
-        bottomBar.classList.add('visible');
-        bottomBar.style.transform = "translateY(0)";
-    }
-    
-    if (currentScrollY < 100) {
-        bottomBar.style.transform = "translateY(100%)";
-    }
-
-    lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
-});
